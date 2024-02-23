@@ -1,6 +1,6 @@
 module github.com/atefeh-syf/grpc-clean
 
-go 1.22
+go 1.22.0
 
 require (
 	github.com/golang/protobuf v1.5.3

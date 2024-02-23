@@ -28,11 +28,12 @@ func (srv *UserServStruct) Create(ctx context.Context, req *pb.CreateUserRequest
 		return &pb.UserProfileResponse{}, errors.New("please provide all fields")
 	}
 
-	user, err := srv.useCase.Create(data)
+	// user, err := srv.useCase.Create(data)
 
-	if err != nil {
-		return &pb.UserProfileResponse{}, err
-	}
+	// if err != nil {
+	// 	return &pb.UserProfileResponse{}, err
+	// }
+	user := models.User{Name: "test", Email: "test@test.com"}
 	return srv.transformUserModel(user), nil
 }
 

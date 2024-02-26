@@ -25,7 +25,7 @@ func (uc *UseCase) Get(id string) (models.User, error) {
 	var user models.User
 	var err error
 
-	if user, err = uc.Get(id); err != nil {
+	if user, err = uc.repo.Get(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return models.User{}, err
 		}
@@ -34,18 +34,18 @@ func (uc *UseCase) Get(id string) (models.User, error) {
 	return user, nil
 }
 
-func (uc *UseCase) Update(updateUser models.User) error {
+func (uc *UseCase) Update(id string,user models.User) (models.User, error) {
 	var err error
 
-	if _, err = uc.Get(string(updateUser.ID)); err != nil {
-		return err
+	if _, err = uc.repo.Get(id); err != nil {
+		return user, err
 	}
 
-	err = uc.repo.Update(updateUser)
+	err = uc.repo.Update(id, user)
 	if err != nil {
-		return err
+		return user, err
 	}
-	return nil
+	return user, nil
 }
 
 func (uc *UseCase) Delete(id string) error {

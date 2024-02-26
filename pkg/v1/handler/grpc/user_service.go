@@ -28,12 +28,10 @@ func (srv *UserServStruct) Create(ctx context.Context, req *pb.CreateUserRequest
 		return &pb.UserProfileResponse{}, errors.New("please provide all fields")
 	}
 
-	// user, err := srv.useCase.Create(data)
-
-	// if err != nil {
-	// 	return &pb.UserProfileResponse{}, err
-	// }
-	user := models.User{Name: "test", Email: "test@test.com"}
+	user, err := srv.useCase.Create(data)
+	if err != nil {
+		return &pb.UserProfileResponse{}, err
+	}
 	return srv.transformUserModel(user), nil
 }
 
@@ -50,28 +48,37 @@ func (srv *UserServStruct) Get(ctx context.Context, req *pb.SingleUserRequest) (
 }
   
 
-func (srv *UserServStruct) Update(ctx context.Context, req *pb.SingleUserRequest) (*pb.UserProfileResponse, error) {
+func (srv *UserServStruct) Update(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserProfileResponse, error) {
 	id := req.GetId()
-	if id == "" {
-	  return &pb.UserProfileResponse{}, errors.New("id cannot be blank")
+	data := srv.transformUpdateUserRPC(req)
+	if data.Email == "" || data.Name == "" {
+		return &pb.UserProfileResponse{}, errors.New("please provide all fields")
 	}
-	user, err := srv.useCase.Get(id)
+	_, err := srv.useCase.Get(string(data.ID))
 	if err != nil {
 	  return &pb.UserProfileResponse{}, err
 	}
-	return srv.transformUserModel(user), nil
+	_ , err = srv.useCase.Update(id, data)
+	if err != nil {
+		return &pb.UserProfileResponse{}, err
+	}
+	return srv.transformUserModel(data), nil
 }
 
-func (srv *UserServStruct) Delete(ctx context.Context, req *pb.SingleUserRequest) (*pb.UserProfileResponse, error) {
+func (srv *UserServStruct) Delete(ctx context.Context, req *pb.SingleUserRequest) (*pb.SuccessResponse, error) {
 	id := req.GetId()
 	if id == "" {
-	  return &pb.UserProfileResponse{}, errors.New("id cannot be blank")
+	  return &pb.SuccessResponse{Response: "id cannot be blank"}, errors.New("id cannot be blank")
 	}
-	user, err := srv.useCase.Get(id)
+	_, err := srv.useCase.Get(id)
 	if err != nil {
-	  return &pb.UserProfileResponse{}, err
+		return &pb.SuccessResponse{Response: "cannot find"}, err
 	}
-	return srv.transformUserModel(user), nil
+	err = srv.useCase.Delete(id)
+	if err != nil {
+		return &pb.SuccessResponse{Response: "cannot delete"}, err
+	}
+	return &pb.SuccessResponse{Response: "Success"}, nil
 }
 
 
@@ -79,6 +86,9 @@ func (srv *UserServStruct) transformUserRPC(req *pb.CreateUserRequest) models.Us
 	return models.User{Name: req.GetName(), Email: req.GetEmail()}
 }
 
+func (srv *UserServStruct) transformUpdateUserRPC(req *pb.UpdateUserRequest) models.User {
+	return models.User{Name: req.GetName(), Email: req.GetEmail()}
+}
 
 func (srv *UserServStruct) transformUserModel(user models.User) *pb.UserProfileResponse {
 	return &pb.UserProfileResponse{Id: string(user.ID), Name: user.Name, Email: user.Email}

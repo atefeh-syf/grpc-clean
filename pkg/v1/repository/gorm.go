@@ -30,9 +30,9 @@ func (repo *Repo) Delete(id string) error {
 	return err
 }
 
-func (repo *Repo) Update(user models.User) error {
+func (repo *Repo) Update(id string, user models.User) error {
 	var dbUser models.User
-	if err := repo.db.Where("id = ?", user.ID).First(&dbUser).Error; err != nil {
+	if err := repo.db.Where("id = ?", id).First(&dbUser).Error; err != nil {
 		return err
 	}
 	dbUser.Name = user.Name

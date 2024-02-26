@@ -18,7 +18,7 @@ func New(repo interfaces.RepoInterface) interfaces.UseCaseInterface {
 }
 
 func (uc *UseCase) Create(user models.User) (models.User, error) {
-	return uc.Create(user)
+	return uc.repo.Create(user)
 }
 
 func (uc *UseCase) Get(id string) (models.User, error) {
